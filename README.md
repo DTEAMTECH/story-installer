@@ -1,0 +1,93 @@
+# Story installer  
+
+This is a simple command line tool to spin up story node. It is designed to be simple and easy to use. 
+
+python 3.8 or python3.10 or python3.11 is required to run this tool. 
+
+## Installation
+
+To install simply download the latest release from the [releases page]()
+
+You can use command for download
+```bash
+wget <release_url>
+chmod +x story-installer  
+```
+
+## Usage
+
+Install with default settings 
+
+```bash
+story-installer   install
+```
+## Example of usage 
+
+You can override any setting from `story-installer show` output by passing `-e` flag with `key=value` pairs. 
+
+For example, let's check the settings for lava_testnet
+
+```bash
+story-installer show 
+```
+
+```yaml
+"moniker": "dteam",
+"consensus_install_from": "none",
+"geth_install_from": "none",
+"chain_id": "iliad",
+"netname": "story_testnet",
+"go_version": "go1.21.11",
+"base_folder": ".story",
+"binary_conensus": "story",
+"binary_geth": "geth",
+"version_consensus": "v0.9.13",
+"version_geth": "v0.9.3",
+"repo_consensus": "https://github.com/piplabs/story.git",
+"repo_geth": "https://github.com/piplabs/story-geth.git",
+"geth_binary_url": "https://story-geth-binaries.s3.us-west-1.amazonaws.com/geth-public/geth-linux-amd64-0.9.3-b224fdf.tar.gz",
+"story_binary_url": "https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-linux-amd64-0.9.13-b4c7db1.tar.gz",
+...etc
+```
+Any of these settings can be overridden with `-e` flag. 
+
+Here is few examples of usage:
+
+1. Install from snapshot
+
+```bash
+# Check modified settings 
+story-installer show -e "geth_install_from=snapshot;consensus_install_from=snapshot"
+# Run `story-installer` to Install lava_testnet from state_sync
+story-installer install  -e "geth_install_from=snapshot;consensus_install_from=snapshot"
+```
+
+2. Install with custom port prefix 
+
+```bash
+story-installer install lava_testnet -e "custom_port_prefix=137;"
+```
+This command will install with custom port prefix 137 
+
+RPC port will be 13757, P2P port will be 13756, GRPC port will be 13790, REST port will be 13717; instead of default 26657, 26656, 9090, 1317
+
+
+## Install story-installer from source
+
+1. Clone the repository
+
+2. Create venv and install dependencies
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install .
+```
+3. Run story-installer
+
+```bash
+python story-installer.py install
+```
+
+
+

@@ -1,0 +1,50 @@
+- name: Install node locally
+  hosts: localhost
+  become: true
+  roles:
+    - role: cosmos_software
+
+    # install story consensus binary
+    - role: cosmos_install
+      vars:
+        download_binary_url: "{{ story_binary_url }}"
+        version: "{{ version_consensus }}"
+        binary: "{{ binary_conensus }}"
+        repo: "{{ repo_consensus }}"
+
+    # install geth binary
+    - role: cosmos_install
+      vars:
+        download_binary_url: "{{ geth_binary_url }}"
+        version: "{{ version_geth }}"
+        binary: "{{ binary_geth }}"
+        repo: "{{ repo_geth }}"
+    - role: cosmos_init
+      vars:
+        binary: "{{ binary_conensus }}"
+        cosmos_folder: "{{ base_folder  }}"
+        version: "{{ version_consensus }}"
+        service_name: "{{ service_consensus_name }}"
+    - role: cosmos_configure
+      vars:
+        binary: "{{ binary_conensus }}"
+        cosmos_folder: "{{ base_folder ~ '/story' }}"
+    - role: start_geth
+      vars:
+        binary: "{{ binary_geth }}"
+        geth_folder: "{{ base_folder ~ '/geth' }}"
+        version: "{{ version_geth }}"
+        install_from: "{{geth_install_from}}"
+        service_name: "{{ service_geth_name }}"
+        snapshot: "{{snapshot_geth}}"
+    - role: cosmos_start
+      vars:
+        binary: "{{ binary_conensus }}"
+        cosmos_folder: "{{ base_folder ~ '/story' }}"
+        version: "{{ version_consensus }}"
+        service_name: "{{ service_consensus_name }}"
+        install_from: "{{consensus_install_from}}"
+        snapshot: "{{snapshot_consensus}}"
+
+
+

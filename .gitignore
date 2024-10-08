@@ -1,0 +1,4 @@
+resources/playbook/env/
+venv/
+.idea/
+.DS_Store

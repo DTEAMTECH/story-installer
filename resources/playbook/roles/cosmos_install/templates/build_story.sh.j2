@@ -1,0 +1,6 @@
+source {{ ansible_env.HOME }}/.gvm/scripts/gvm
+gvm install {{ go_version }} -B
+gvm use {{ go_version }} --default
+mkdir -p {{build_dir}}/{{version }}
+go build -o story ./client
+mv {{ binary }} {{build_dir}}/{{ version }}

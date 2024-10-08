@@ -1,0 +1,101 @@
+- name: Fail if download_binary is true and download_binary_url is not defined
+  ansible.builtin.fail:
+    msg: "download_binary is true but download_binary_url is not defined"
+  when:
+    - download_binary is true
+    - download_binary_url is not defined
+
+- name: Create ansible_build directory
+  ansible.builtin.file:
+    path: "{{ build_dir }}/{{ version }}"
+    state: directory
+    mode: '0755'
+
+- name: Check if cosmos binary exists
+  ansible.builtin.stat:
+    path: "{{ build_dir }}/{{ version }}/{{ binary }}"
+  register: is_cosmos_binary
+
+- name: Build the binary
+  block:
+    - name: Clone the repository
+      ansible.builtin.git:
+        repo: "{{ repo }}"
+        dest: "{{ ansible_env.HOME }}/{{ netname ~ binary }}"
+        version: "{{ version }}"
+        update: true
+
+    - name: Check if specific build script template exists
+      ansible.builtin.stat:
+        path: "{{ role_path }}/templates/build_{{ binary }}.sh.j2"
+      register: specific_template
+      delegate_to: localhost
+
+    - name: Set fact for template to use
+      ansible.builtin.set_fact:
+        template_to_use: "{{ 'build_' + binary + '.sh.j2' if specific_template.stat.exists else 'default.sh.j2' }}"
+
+    - name: Prepare build script
+      ansible.builtin.template:
+        src: "{{ template_to_use }}"
+        dest: "{{ build_dir }}/build_{{ binary }}.sh"
+        mode: '0755'
+
+    - name: Build the binary
+      ansible.builtin.shell: "bash {{ build_dir }}/build_{{ binary }}.sh"
+      args:
+        chdir: "{{ ansible_env.HOME }}/{{ netname ~ binary }}"
+        executable: /bin/bash
+        creates: "{{ build_dir }}/{{ version }}/{{ binary }}"
+  when: download_binary is undefined or download_binary == false
+
+- name: Download binary
+  block:
+    - name: Ensure the directory exists
+      ansible.builtin.file:
+        path: "{{ build_dir }}/{{ version }}"
+        state: directory
+        mode: '0755'
+      become: true
+
+    - name: Download binary
+      become: true
+      ansible.builtin.get_url:
+        url: "{{ download_binary_url }}"
+        dest: "{{ build_dir }}/{{ version }}/{{ binary }}"
+        mode: '0755'
+      when:
+        - download_binary is true
+        - not is_cosmos_binary.stat.exists
+
+    - name: Extract binary if it is a tar.gz file
+      ansible.builtin.unarchive:
+        src: "{{ build_dir }}/{{ version }}/{{ binary }}"
+        dest: "{{ build_dir }}/{{ version }}"
+        remote_src: yes
+      when:
+        - download_binary_url is match(".*\.tar\.gz$")
+
+    - name: Find the extracted binary folder
+      ansible.builtin.find:
+        paths: "{{ build_dir }}/{{ version }}"
+        file_type: directory
+        patterns: "{{ binary ~ '-linux-amd64-*'}}"
+      register: extracted_folder
+
+
+    - name: Move extracted binary to the desired location
+      command: mv "{{ extracted_folder.files[0].path }}/{{ binary }}" "{{ build_dir }}/{{ version }}/{{ binary }}"
+      become: true
+      when:
+        - extracted_folder.matched > 0
+        - download_binary is true
+
+    - name: Remove extracted folder
+      ansible.builtin.file:
+        path: "{{ extracted_folder.files[0].path }}"
+        state: absent
+
+  when:
+    - download_binary is true
+    - not is_cosmos_binary.stat.exists

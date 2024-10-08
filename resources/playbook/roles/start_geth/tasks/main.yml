@@ -1,0 +1,59 @@
+- name: open p2p port
+  become: true
+  command: 'ufw allow {{ custom_port_prefix }}56/tcp'
+- name: debug
+  debug:
+    msg: "install_from: {{ install_from }}"
+- name: Check if install_from is 'snapshot' and snapshot is not defined
+  fail:
+    msg: "Snapshot is not defined"
+  when: install_from is defined and install_from == 'snapshot' and snapshot is undefined
+
+- name: Check if only one of use_snapshot and use_state_sync
+  fail:
+    msg: "install_from is required  can be only 'snapshot' or 'state_sync'"
+  when: install_from is not defined or (install_from != 'snapshot' and install_from != 'none')
+
+#    rm -rf {{ ansible_env.HOME }}/{{ geth_folder }}/data
+- name: Block dowload snapshot
+  block:
+    - name: Ensure the directory exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/{{ geth_folder }}"
+        state: directory
+        mode: '0755'
+    - name: Download snapshot
+      ansible.builtin.shell: |
+        curl -L {{ snapshot }} | tar -Ilz4 -xf - -C {{ ansible_env.HOME }}/{{ geth_folder }}
+      when: install_from == 'snapshot'
+      register: snapshot_download
+      async: 3000
+      poll: 0
+      args:
+        executable: /bin/bash
+
+    - name: Wait for snapshot download
+      ansible.builtin.async_status:
+        jid: "{{ snapshot_download.ansible_job_id }}"
+      register: job_status
+      until: job_status.finished
+      retries: 10000
+      delay: 5
+      when: install_from == 'snapshot'
+
+- name: Copy service file
+  become: true
+  ansible.builtin.template:
+    src: 'geth.service.j2'
+    dest: '/etc/systemd/system/{{ service_name }}.service'
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start cosmovisor service
+  become: true
+  ansible.builtin.systemd:
+    name: '{{ service_name }}'
+    state: restarted
+    daemon_reload: true
+    enabled: true
