@@ -1,6 +1,6 @@
 # Story installer  
 
-This is a simple command line tool to spin up story node. It is designed to be simple and easy to use. 
+This is a simple command line tool to spin up Story protocol node. It is designed to be simple and easy to use. 
 
 python 3.8 or python3.10 or python3.11 is required to run this tool. 
 
@@ -31,7 +31,8 @@ For example, let's check the settings for lava_testnet
 story-installer show 
 ```
 
-```yaml
+```json
+{
 "moniker": "dteam",
 "consensus_install_from": "none",
 "geth_install_from": "none",
