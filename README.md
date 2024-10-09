@@ -25,7 +25,7 @@ story-installer   install
 
 You can override any setting from `story-installer show` output by passing `-e` flag with `key=value` pairs. 
 
-For example, let's check the settings for lava_testnet
+For example, let's check the settings for story_testnet
 
 ```bash
 story-installer show 
@@ -59,14 +59,14 @@ Here is few examples of usage:
 ```bash
 # Check modified settings 
 story-installer show -e "geth_install_from=snapshot;consensus_install_from=snapshot"
-# Run `story-installer` to Install lava_testnet from state_sync
+# Run `story-installer` to Install story_testnet from state_sync
 story-installer install  -e "geth_install_from=snapshot;consensus_install_from=snapshot"
 ```
 
 2. Install with custom port prefix 
 
 ```bash
-story-installer install lava_testnet -e "custom_port_prefix=137;"
+story-installer install story_testnet -e "custom_port_prefix=137;"
 ```
 This command will install with custom port prefix 137 
 
