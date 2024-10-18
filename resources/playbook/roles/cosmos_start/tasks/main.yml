@@ -1,6 +1,6 @@
 - name: open p2p port
   become: true
-  command: 'ufw allow {{ custom_port_prefix }}56/tcp'
+  command: "ufw allow {{ custom_port_prefix }}56/tcp"
 - name: debug
   debug:
     msg: "install_from: {{ install_from }}"
@@ -17,7 +17,20 @@
 - name: Check if only one of use_snapshot and use_state_sync
   fail:
     msg: "install_from is required  can be only 'snapshot' or 'state_sync'"
-  when: install_from is not defined or (install_from != 'snapshot' and install_from != 'state_sync' and install_from != 'none')
+  when: install_from is not defined or (install_from != 'snapshot' and install_from != 'state_sync' and install_from != 'none' and intall_from != "arhive")
+
+- name: Debug snapshot url
+  debug:
+    msg: "Snapshot url: {{ snapshot }}"
+  when: snapshot is defined
+
+- name: Debug binary name
+  debug:
+    msg: "Binary name: {{ binary }}"
+
+- name: Debug version
+  debug:
+    msg: "Version: {{ version }}"
 
 - name: Download snapshot
   ansible.builtin.shell: |
@@ -31,7 +44,7 @@
     executable: /bin/bash
 
 - name: Download cosmo wasm
-  ansible.builtin.shell: | 
+  ansible.builtin.shell: |
     curl -L {{ wasm }} | lz4 -dc - | tar -xf - -C {{ ansible_env.HOME }}/{{ cosmos_folder }}
   args:
     executable: /bin/bash
@@ -50,8 +63,8 @@
   block:
     - name: Use state sync peer
       lineinfile:
-        path: '{{ ansible_env.HOME }}/{{ cosmos_folder }}/config/config.toml'
-        regexp: '^persistent_peers ='
+        path: "{{ ansible_env.HOME }}/{{ cosmos_folder }}/config/config.toml"
+        regexp: "^persistent_peers ="
         line: 'persistent_peers = "{{ state_sync_peer }}"'
         state: present
       when: state_sync_peer is defined and state_sync_peer | length > 0
@@ -59,39 +72,39 @@
     - name: Apply state sync settings
       shell: "{{ lookup('template', 'use_state_sync.sh.j2') }}"
       args:
-       executable: /bin/bash
+        executable: /bin/bash
   when: install_from == 'state_sync'
 
 - name: Create cosmovisor directories
   ansible.builtin.file:
-    path: '{{ item }}'
+    path: "{{ item }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
   with_items:
-    - '{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/genesis/bin'
-    - '{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/upgrades'
-    - '{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/backup'
+    - "{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/genesis/bin"
+    - "{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/upgrades"
+    - "{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/backup"
 
 - name: Copy daemon file to cosmovisor
   ansible.builtin.copy:
-    src: '{{ ansible_env.HOME }}/.crun/bins/{{ netname }}/{{ version }}/{{ binary}}'
-    dest: '{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/genesis/bin'
+    src: "{{ ansible_env.HOME }}/.crun/bins/{{ netname }}/{{ version }}/{{ binary}}"
+    dest: "{{ ansible_env.HOME }}/{{ cosmos_folder }}/cosmovisor/genesis/bin"
     remote_src: true
-    mode: '0755'
+    mode: "0755"
 
 - name: Copy service file
   become: true
   ansible.builtin.template:
-    src: 'cosmovisor.service.j2'
-    dest: '/etc/systemd/system/{{ service_name }}.service'
+    src: "cosmovisor.service.j2"
+    dest: "/etc/systemd/system/{{ service_name }}.service"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Start cosmovisor service
   become: true
   ansible.builtin.systemd:
-    name: '{{ service_name }}'
+    name: "{{ service_name }}"
     state: restarted
     daemon_reload: true
     enabled: true

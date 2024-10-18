@@ -1,14 +1,20 @@
 - name: Install node locally
   hosts: localhost
   become: true
+  vars:
+    version_consensus_resolved: "{{ latest_version_consensus if consensus_install_from == 'snapshot' else version_consensus }}"
+    snapshot_consensus_resolved: "{{ snapshot_consensus_archive if consensus_install_from == 'archive' else snapshot_consensus }}"
+    snapshot_geth_resolved: "{{ snapshot_geth_archive if geth_install_from == 'archive' else snapshot_geth }}"
+    story_binary_url_resolved: "{{ latest_story_binary_url if consensus_install_from == 'snapshot' else story_binary_url }}"
+  tasks:
   roles:
     - role: cosmos_software
 
     # install story consensus binary
     - role: cosmos_install
       vars:
-        download_binary_url: "{{ story_binary_url }}"
-        version: "{{ version_consensus }}"
+        download_binary_url: "{{ story_binary_url_resolved }}"
+        version: "{{ version_consensus_resolved }}"
         binary: "{{ binary_conensus }}"
         repo: "{{ repo_consensus }}"
 
@@ -23,7 +29,7 @@
       vars:
         binary: "{{ binary_conensus }}"
         cosmos_folder: "{{ base_folder  }}"
-        version: "{{ version_consensus }}"
+        version: "{{ version_consensus_resolved }}"
         service_name: "{{ service_consensus_name }}"
     - role: cosmos_configure
       vars:
@@ -36,15 +42,12 @@
         version: "{{ version_geth }}"
         install_from: "{{geth_install_from}}"
         service_name: "{{ service_geth_name }}"
-        snapshot: "{{snapshot_geth}}"
+        snapshot: "{{ snapshot_geth_resolved }}"
     - role: cosmos_start
       vars:
         binary: "{{ binary_conensus }}"
         cosmos_folder: "{{ base_folder ~ '/story' }}"
-        version: "{{ version_consensus }}"
+        version: "{{ version_consensus_resolved }}"
         service_name: "{{ service_consensus_name }}"
         install_from: "{{consensus_install_from}}"
-        snapshot: "{{snapshot_consensus}}"
-
-
-
+        snapshot: "{{ snapshot_consensus_resolved }}"

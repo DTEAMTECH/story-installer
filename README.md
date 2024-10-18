@@ -61,6 +61,8 @@ Here is few examples of usage:
 story-installer show -e "geth_install_from=snapshot;consensus_install_from=snapshot"
 # Run `story-installer` to Install story_testnet from state_sync
 story-installer install  -e "geth_install_from=snapshot;consensus_install_from=snapshot"
+# Run `story-installer` to install from archive snapshot
+story-installer install  -e "geth_install_from=archive;consensus_install_from=archive"
 ```
 
 2. Install with custom port prefix 

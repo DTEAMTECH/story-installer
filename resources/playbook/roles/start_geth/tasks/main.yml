@@ -19,12 +19,12 @@
   block:
     - name: Ensure the directory exists
       ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/{{ geth_folder }}"
+        path: "{{ ansible_env.HOME }}/{{ geth_folder }}/iliad/geth"
         state: directory
         mode: '0755'
     - name: Download snapshot
       ansible.builtin.shell: |
-        curl -L {{ snapshot }} | tar -Ilz4 -xf - -C {{ ansible_env.HOME }}/{{ geth_folder }}
+        curl -L {{ snapshot }} | tar -Ilz4 -xf - -C {{ ansible_env.HOME }}/{{ geth_folder }}/iliad/geth
       when: install_from == 'snapshot'
       register: snapshot_download
       async: 3000
