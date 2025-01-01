@@ -19,7 +19,7 @@ chmod +x story-installer
 Install with default settings 
 
 ```bash
-story-installer   install
+story-installer install
 ```
 ## Example of usage 
 
