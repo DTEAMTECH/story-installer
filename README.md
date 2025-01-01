@@ -33,21 +33,21 @@ story-installer show
 
 ```json
 {
-"moniker": "dteam",
+"moniker": "validator",
 "consensus_install_from": "none",
 "geth_install_from": "none",
-"chain_id": "iliad",
+"chain_id": "odyssey",
 "netname": "story_testnet",
 "go_version": "go1.21.11",
 "base_folder": ".story",
 "binary_conensus": "story",
 "binary_geth": "geth",
-"version_consensus": "v0.9.13",
-"version_geth": "v0.9.3",
+"version_consensus": "v0.13.0",
+"version_geth": "v0.11.0",
 "repo_consensus": "https://github.com/piplabs/story.git",
 "repo_geth": "https://github.com/piplabs/story-geth.git",
-"geth_binary_url": "https://story-geth-binaries.s3.us-west-1.amazonaws.com/geth-public/geth-linux-amd64-0.9.3-b224fdf.tar.gz",
-"story_binary_url": "https://story-geth-binaries.s3.us-west-1.amazonaws.com/story-public/story-linux-amd64-0.9.13-b4c7db1.tar.gz",
+"geth_binary_url": "https://github.com/piplabs/story-geth/releases/download/v0.11.0/geth-linux-amd64",
+"story_binary_url": "https://github.com/piplabs/story/releases/download/v0.13.0/story-linux-amd64",
 ...etc
 ```
 Any of these settings can be overridden with `-e` flag. 
