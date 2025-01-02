@@ -1,3 +1,5 @@
+[<img src='../utils/installer.png' alt='Story Protocol'  width='100%'>](https://www.story.foundation/)
+
 # Story installer  
 
 This is a simple command line tool to spin up Story protocol node. It is designed to be simple and easy to use. 
@@ -91,6 +93,3 @@ pip install .
 ```bash
 python story-installer.py install
 ```
-
-
-
