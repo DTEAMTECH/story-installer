@@ -1,4 +1,4 @@
-[<img src='../utils/installer.png' alt='Story Protocol'  width='100%'>](https://www.story.foundation/)
+[<img src='https://raw.githubusercontent.com/DTEAMTECH/contributions/refs/heads/main/story/utils/installer.png' alt='Story Protocol'  width='100%'>](https://www.story.foundation/)
 
 # Story installer  
 
